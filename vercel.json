@@ -1,5 +1,5 @@
 {
-    "buildCommand": "bash scripts/vercel-build.sh",
-    "outputDirectory": "dist",
-    "installCommand": "pnpm install"
+  "buildCommand": "pnpm build",
+  "outputDirectory": "dist",
+  "installCommand": "pnpm install"
 }

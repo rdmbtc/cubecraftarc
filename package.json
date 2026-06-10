@@ -8,7 +8,7 @@
     "start": "run-p dev-proxy dev-rsbuild watch-mesher",
     "start2": "run-p dev-rsbuild watch-mesher",
     "start-metrics": "ENABLE_METRICS=true rsbuild dev",
-    "build": "pnpm build-other-workers && rsbuild build",
+    "build": "pnpm prepare-project && pnpm build-only",
     "build-analyze": "BUNDLE_ANALYZE=true rsbuild build && pnpm build-other-workers",
     "build-single-file": "SINGLE_FILE_BUILD=true rsbuild build",
     "prepare-project": "tsx scripts/genShims.ts && tsx scripts/makeOptimizedMcData.mjs && tsx scripts/genLargeDataAliases.ts",
@@ -34,7 +34,8 @@
     "watch-playground": "rsbuild dev --config renderer/rsbuild.config.ts",
     "update-git-deps": "tsx scripts/updateGitDeps.ts",
     "request-data": "tsx scripts/requestData.ts",
-    "server": "tsx src/server/index.ts"
+    "server": "tsx src/server/index.ts",
+    "build-only": "pnpm build-other-workers && rsbuild build"
   },
   "keywords": [
     "prismarine",
@@ -174,7 +175,8 @@
     "timers-browserify": "^2.0.12",
     "typescript": "5.5.4",
     "vitest": "^0.34.6",
-    "yaml": "^2.3.2"
+    "yaml": "^2.3.2",
+    "tsx": "^4.0.0"
   },
   "optionalDependencies": {
     "cypress": "^10.11.0",
