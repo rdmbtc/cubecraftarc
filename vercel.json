@@ -1,5 +1,5 @@
 {
-    "buildCommand": "pnpm -w build",
+    "buildCommand": "pnpm run prepare-project && pnpm -w build",
     "outputDirectory": "dist",
     "installCommand": "pnpm install"
 }
