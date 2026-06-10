@@ -1,0 +1,316 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {"name": "_usdc", "type": "address"},
+      {"name": "_landNFT", "type": "address"},
+      {"name": "_treasury", "type": "address"},
+      {"name": "_admin", "type": "address"},
+      {"name": "_feeBasisPoints", "type": "uint256"}
+    ]
+  },
+  {
+    "type": "function",
+    "name": "usdc",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "landNFT",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "gameAdmin",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "treasury",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "feeBasisPoints",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalRevenue",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "treasuryRevenue",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "listings",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [
+      {"name": "pricePerDay", "type": "uint256"},
+      {"name": "isListed", "type": "bool"},
+      {"name": "minDays", "type": "uint256"},
+      {"name": "maxDays", "type": "uint256"}
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "activeRentals",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [
+      {"name": "tenant", "type": "address"},
+      {"name": "tokenId_", "type": "uint256"},
+      {"name": "startTime", "type": "uint256"},
+      {"name": "endTime", "type": "uint256"},
+      {"name": "totalPaid", "type": "uint256"},
+      {"name": "isActive", "type": "bool"}
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getListing",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "components": [
+          {"name": "pricePerDay", "type": "uint256"},
+          {"name": "isListed", "type": "bool"},
+          {"name": "minDays", "type": "uint256"},
+          {"name": "maxDays", "type": "uint256"}
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getActiveRental",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "components": [
+          {"name": "tenant", "type": "address"},
+          {"name": "tokenId", "type": "uint256"},
+          {"name": "startTime", "type": "uint256"},
+          {"name": "endTime", "type": "uint256"},
+          {"name": "totalPaid", "type": "uint256"},
+          {"name": "isActive", "type": "bool"}
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRentalHistory",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "components": [
+          {"name": "tenant", "type": "address"},
+          {"name": "tokenId", "type": "uint256"},
+          {"name": "startTime", "type": "uint256"},
+          {"name": "endTime", "type": "uint256"},
+          {"name": "totalPaid", "type": "uint256"},
+          {"name": "isActive", "type": "bool"}
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTenantRentals",
+    "inputs": [{"name": "tenant", "type": "address"}],
+    "outputs": [{"name": "", "type": "uint256[]"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isRented",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [{"name": "", "type": "bool"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isRentalExpired",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [{"name": "", "type": "bool"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRemainingTime",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRentalCost",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256"},
+      {"name": "days", "type": "uint256"}
+    ],
+    "outputs": [
+      {"name": "totalCost", "type": "uint256"},
+      {"name": "ownerPayment", "type": "uint256"},
+      {"name": "fee", "type": "uint256"}
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "listLand",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256"},
+      {"name": "pricePerDay", "type": "uint256"},
+      {"name": "minDays", "type": "uint256"},
+      {"name": "maxDays", "type": "uint256"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unlistLand",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateListing",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256"},
+      {"name": "newPricePerDay", "type": "uint256"},
+      {"name": "newMinDays", "type": "uint256"},
+      {"name": "newMaxDays", "type": "uint256"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "rentLand",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256"},
+      {"name": "days", "type": "uint256"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "expireRental",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setFeeBasisPoints",
+    "inputs": [{"name": "_feeBasisPoints", "type": "uint256"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setTreasury",
+    "inputs": [{"name": "_treasury", "type": "address"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setAdmin",
+    "inputs": [{"name": "_admin", "type": "address"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "LandListed",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256", "indexed": true},
+      {"name": "pricePerDay", "type": "uint256", "indexed": false},
+      {"name": "minDays", "type": "uint256", "indexed": false},
+      {"name": "maxDays", "type": "uint256", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "LandUnlisted",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256", "indexed": true}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "LandRented",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256", "indexed": true},
+      {"name": "tenant", "type": "address", "indexed": true},
+      {"name": "startTime", "type": "uint256", "indexed": false},
+      {"name": "endTime", "type": "uint256", "indexed": false},
+      {"name": "totalCost", "type": "uint256", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "RentalExpired",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256", "indexed": true},
+      {"name": "tenant", "type": "address", "indexed": true}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "FeeUpdated",
+    "inputs": [
+      {"name": "oldFee", "type": "uint256", "indexed": false},
+      {"name": "newFee", "type": "uint256", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "TreasuryUpdated",
+    "inputs": [
+      {"name": "oldTreasury", "type": "address", "indexed": false},
+      {"name": "newTreasury", "type": "address", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "RevenueWithdrawn",
+    "inputs": [
+      {"name": "to", "type": "address", "indexed": true},
+      {"name": "amount", "type": "uint256", "indexed": false}
+    ]
+  }
+]

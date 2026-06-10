@@ -1,0 +1,337 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {"name": "name_", "type": "string"},
+      {"name": "symbol_", "type": "string"},
+      {"name": "baseTokenURI_", "type": "string"},
+      {"name": "admin_", "type": "address"}
+    ]
+  },
+  {
+    "type": "function",
+    "name": "name",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "string"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "symbol",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "string"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "balanceOf",
+    "inputs": [{"name": "owner", "type": "address"}],
+    "outputs": [{"name": "balance", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "ownerOf",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "approve",
+    "inputs": [
+      {"name": "to", "type": "address"},
+      {"name": "tokenId", "type": "uint256"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getApproved",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setApprovalForAll",
+    "inputs": [
+      {"name": "operator", "type": "address"},
+      {"name": "approved", "type": "bool"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "isApprovedForAll",
+    "inputs": [
+      {"name": "owner", "type": "address"},
+      {"name": "operator", "type": "address"}
+    ],
+    "outputs": [{"name": "", "type": "bool"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "transferFrom",
+    "inputs": [
+      {"name": "from", "type": "address"},
+      {"name": "to", "type": "address"},
+      {"name": "tokenId", "type": "uint256"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "safeTransferFrom",
+    "inputs": [
+      {"name": "from", "type": "address"},
+      {"name": "to", "type": "address"},
+      {"name": "tokenId", "type": "uint256"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "safeTransferFrom",
+    "inputs": [
+      {"name": "from", "type": "address"},
+      {"name": "to", "type": "address"},
+      {"name": "tokenId", "type": "uint256"},
+      {"name": "data", "type": "bytes"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "supportsInterface",
+    "inputs": [{"name": "interfaceId", "type": "bytes4"}],
+    "outputs": [{"name": "", "type": "bool"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tokenURI",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [{"name": "", "type": "string"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "gameAdmin",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalParcels",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "parcels",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [
+      {"name": "x", "type": "int256"},
+      {"name": "y", "type": "int256"},
+      {"name": "width", "type": "uint256"},
+      {"name": "height", "type": "uint256"},
+      {"name": "zoneType", "type": "uint8"},
+      {"name": "developmentLevel", "type": "uint8"},
+      {"name": "exists", "type": "bool"}
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "ownerParcels",
+    "inputs": [
+      {"name": "owner", "type": "address"},
+      {"name": "index", "type": "uint256"}
+    ],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "coordinateToToken",
+    "inputs": [{"name": "key", "type": "bytes32"}],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getParcelData",
+    "inputs": [{"name": "tokenId", "type": "uint256"}],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "components": [
+          {"name": "x", "type": "int256"},
+          {"name": "y", "type": "int256"},
+          {"name": "width", "type": "uint256"},
+          {"name": "height", "type": "uint256"},
+          {"name": "zoneType", "type": "uint8"},
+          {"name": "developmentLevel", "type": "uint8"},
+          {"name": "exists", "type": "bool"}
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getOwnerParcels",
+    "inputs": [{"name": "owner", "type": "address"}],
+    "outputs": [{"name": "", "type": "uint256[]"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getOwnerParcelCount",
+    "inputs": [{"name": "owner", "type": "address"}],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tokenByCoordinates",
+    "inputs": [
+      {"name": "x", "type": "int256"},
+      {"name": "y", "type": "int256"},
+      {"name": "width", "type": "uint256"},
+      {"name": "height", "type": "uint256"}
+    ],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "mintLand",
+    "inputs": [
+      {"name": "to", "type": "address"},
+      {"name": "x", "type": "int256"},
+      {"name": "y", "type": "int256"},
+      {"name": "width", "type": "uint256"},
+      {"name": "height", "type": "uint256"},
+      {"name": "zoneType", "type": "uint8"}
+    ],
+    "outputs": [{"name": "tokenId", "type": "uint256"}],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "mintLandBatch",
+    "inputs": [
+      {"name": "recipients", "type": "address[]"},
+      {"name": "xs", "type": "int256[]"},
+      {"name": "ys", "type": "int256[]"},
+      {"name": "widths", "type": "uint256[]"},
+      {"name": "heights", "type": "uint256[]"},
+      {"name": "zoneTypes", "type": "uint8[]"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "upgradeDevelopment",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256"},
+      {"name": "newLevel", "type": "uint8"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "changeZoneType",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256"},
+      {"name": "newZone", "type": "uint8"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setBaseURI",
+    "inputs": [{"name": "newBaseURI", "type": "string"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "Transfer",
+    "inputs": [
+      {"name": "from", "type": "address", "indexed": true},
+      {"name": "to", "type": "address", "indexed": true},
+      {"name": "tokenId", "type": "uint256", "indexed": true}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "Approval",
+    "inputs": [
+      {"name": "owner", "type": "address", "indexed": true},
+      {"name": "approved", "type": "address", "indexed": true},
+      {"name": "tokenId", "type": "uint256", "indexed": true}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "ApprovalForAll",
+    "inputs": [
+      {"name": "owner", "type": "address", "indexed": true},
+      {"name": "operator", "type": "address", "indexed": true},
+      {"name": "approved", "type": "bool", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "LandMinted",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256", "indexed": true},
+      {"name": "to", "type": "address", "indexed": true},
+      {"name": "x", "type": "int256", "indexed": false},
+      {"name": "y", "type": "int256", "indexed": false},
+      {"name": "width", "type": "uint256", "indexed": false},
+      {"name": "height", "type": "uint256", "indexed": false},
+      {"name": "zoneType", "type": "uint8", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "DevelopmentUpgraded",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256", "indexed": true},
+      {"name": "oldLevel", "type": "uint8", "indexed": false},
+      {"name": "newLevel", "type": "uint8", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "ZoneTypeChanged",
+    "inputs": [
+      {"name": "tokenId", "type": "uint256", "indexed": true},
+      {"name": "oldZone", "type": "uint8", "indexed": false},
+      {"name": "newZone", "type": "uint8", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "BaseURIUpdated",
+    "inputs": [
+      {"name": "newBaseURI", "type": "string", "indexed": false}
+    ]
+  }
+]

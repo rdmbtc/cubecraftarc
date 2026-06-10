@@ -8,30 +8,12 @@
   "peerJsServerFallback": "https://p2p.mcraft.fun",
   "promoteServers": [
     {
-      "ip": "wss://play.mcraft.fun"
-    },
-    {
-      "ip": "wss://play.webmc.fun",
-      "name": "WebMC"
-    },
-    {
-      "ip": "wss://ws.fuchsmc.net"
-    },
-    {
-      "ip": "wss://play2.mcraft.fun",
-      "description": "Mirror for play.mcraft.fun"
-    },
-    {
-      "ip": "wss://play3.mcraft.fun",
-      "description": "Mirror for play.mcraft.fun"
-    },
-    {
-      "ip": "wss://play-creative.mcraft.fun",
-      "description": "Might be available soon, stay tuned!"
+      "ip": "wss://cubecraft-arc.fly.dev",
+      "name": "CubeCraft Arc Tycoon"
     }
   ],
-  "rightSideText": "A Minecraft client clone in the browser!",
-  "splashText": "Thanks for testing my chaos!",
+  "rightSideText": "Build Your Empire on Arc Blockchain!",
+  "splashText": "Your Land, Your Business, Your Rules!",
   "splashTextFallback": "Welcome!",
   "pauseLinks": [
     [
@@ -43,7 +25,7 @@
       }
     ]
   ],
-  "defaultUsername": "mcrafter{0-9999}",
+  "defaultUsername": "player{0-9999}",
   "mobileButtons": [
     {
       "action": "general.drop",

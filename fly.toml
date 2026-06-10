@@ -1,0 +1,45 @@
+# fly.toml - CubeCraft Arc Tycoon Game Server
+app = "cubecraftarc-tycoon"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile.gameserver"
+
+[env]
+  MC_PORT = "25565"
+  WS_PORT = "25566"
+  HTTP_PORT = "25567"
+  NODE_ENV = "production"
+
+# Minecraft protocol - raw TCP
+[[services]]
+  internal_port = 25565
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 25565
+
+# WebSocket API
+[[services]]
+  internal_port = 25566
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 25566
+
+# HTTP REST API
+[[services]]
+  internal_port = 25567
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

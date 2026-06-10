@@ -1,0 +1,323 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {"name": "_usdc", "type": "address"},
+      {"name": "_landNFT", "type": "address"},
+      {"name": "_landRental", "type": "address"},
+      {"name": "_treasury", "type": "address"},
+      {"name": "_admin", "type": "address"},
+      {"name": "_revenueFeeBasisPoints", "type": "uint256"}
+    ]
+  },
+  {
+    "type": "function",
+    "name": "usdc",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "landNFT",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "landRental",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "gameAdmin",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "treasury",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "address"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "revenueFeeBasisPoints",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "nextBusinessId",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalBusinesses",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalRevenueGenerated",
+    "inputs": [],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "businesses",
+    "inputs": [{"name": "businessId", "type": "uint256"}],
+    "outputs": [
+      {"name": "id", "type": "uint256"},
+      {"name": "landTokenId", "type": "uint256"},
+      {"name": "businessType", "type": "uint8"},
+      {"name": "level", "type": "uint8"},
+      {"name": "builtAt", "type": "uint256"},
+      {"name": "lastClaimTime", "type": "uint256"},
+      {"name": "totalRevenue_", "type": "uint256"},
+      {"name": "exists", "type": "bool"}
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "landBusiness",
+    "inputs": [{"name": "landTokenId", "type": "uint256"}],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "ownerBusinesses",
+    "inputs": [
+      {"name": "owner", "type": "address"},
+      {"name": "index", "type": "uint256"}
+    ],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "businessConfigs",
+    "inputs": [{"name": "businessType", "type": "uint8"}],
+    "outputs": [
+      {"name": "buildCost", "type": "uint256"},
+      {"name": "dailyRevenue", "type": "uint256"},
+      {"name": "upgradeCost", "type": "uint256"},
+      {"name": "maxLevel", "type": "uint8"},
+      {"name": "enabled", "type": "bool"}
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getBusiness",
+    "inputs": [{"name": "businessId", "type": "uint256"}],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "components": [
+          {"name": "id", "type": "uint256"},
+          {"name": "landTokenId", "type": "uint256"},
+          {"name": "businessType", "type": "uint8"},
+          {"name": "level", "type": "uint8"},
+          {"name": "builtAt", "type": "uint256"},
+          {"name": "lastClaimTime", "type": "uint256"},
+          {"name": "totalRevenue", "type": "uint256"},
+          {"name": "exists", "type": "bool"}
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getBusinessConfig",
+    "inputs": [{"name": "businessType", "type": "uint8"}],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "components": [
+          {"name": "buildCost", "type": "uint256"},
+          {"name": "dailyRevenue", "type": "uint256"},
+          {"name": "upgradeCost", "type": "uint256"},
+          {"name": "maxLevel", "type": "uint8"},
+          {"name": "enabled", "type": "bool"}
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getOwnerBusinesses",
+    "inputs": [{"name": "owner", "type": "address"}],
+    "outputs": [{"name": "", "type": "uint256[]"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPendingRevenue",
+    "inputs": [{"name": "businessId", "type": "uint256"}],
+    "outputs": [
+      {"name": "total", "type": "uint256"},
+      {"name": "ownerShare", "type": "uint256"},
+      {"name": "fee", "type": "uint256"}
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getBusinessOnLand",
+    "inputs": [{"name": "landTokenId", "type": "uint256"}],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRevenuePerDay",
+    "inputs": [{"name": "businessId", "type": "uint256"}],
+    "outputs": [{"name": "", "type": "uint256"}],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "buildBusiness",
+    "inputs": [
+      {"name": "landTokenId", "type": "uint256"},
+      {"name": "businessType", "type": "uint8"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "upgradeBusiness",
+    "inputs": [{"name": "businessId", "type": "uint256"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimRevenue",
+    "inputs": [{"name": "businessId", "type": "uint256"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "demolishBusiness",
+    "inputs": [{"name": "businessId", "type": "uint256"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "fundTreasury",
+    "inputs": [{"name": "amount", "type": "uint256"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setBusinessConfig",
+    "inputs": [
+      {"name": "businessType", "type": "uint8"},
+      {"name": "buildCost", "type": "uint256"},
+      {"name": "dailyRevenue", "type": "uint256"},
+      {"name": "upgradeCost", "type": "uint256"},
+      {"name": "maxLevel", "type": "uint8"},
+      {"name": "enabled", "type": "bool"}
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setRevenueFeeBasisPoints",
+    "inputs": [{"name": "_fee", "type": "uint256"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setTreasury",
+    "inputs": [{"name": "_treasury", "type": "address"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setAdmin",
+    "inputs": [{"name": "_admin", "type": "address"}],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "BusinessBuilt",
+    "inputs": [
+      {"name": "businessId", "type": "uint256", "indexed": true},
+      {"name": "owner", "type": "address", "indexed": true},
+      {"name": "landTokenId", "type": "uint256", "indexed": true},
+      {"name": "businessType", "type": "uint8", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "BusinessUpgraded",
+    "inputs": [
+      {"name": "businessId", "type": "uint256", "indexed": true},
+      {"name": "oldLevel", "type": "uint8", "indexed": false},
+      {"name": "newLevel", "type": "uint8", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "RevenueClaimed",
+    "inputs": [
+      {"name": "businessId", "type": "uint256", "indexed": true},
+      {"name": "owner", "type": "address", "indexed": true},
+      {"name": "amount", "type": "uint256", "indexed": false},
+      {"name": "fee", "type": "uint256", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "BusinessDemolished",
+    "inputs": [
+      {"name": "businessId", "type": "uint256", "indexed": true},
+      {"name": "landTokenId", "type": "uint256", "indexed": true}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "BusinessConfigUpdated",
+    "inputs": [
+      {"name": "businessType", "type": "uint8", "indexed": false},
+      {"name": "buildCost", "type": "uint256", "indexed": false},
+      {"name": "dailyRevenue", "type": "uint256", "indexed": false},
+      {"name": "upgradeCost", "type": "uint256", "indexed": false}
+    ]
+  },
+  {
+    "type": "event",
+    "name": "AdminUpdated",
+    "inputs": [
+      {"name": "oldAdmin", "type": "address", "indexed": false},
+      {"name": "newAdmin", "type": "address", "indexed": false}
+    ]
+  }
+]

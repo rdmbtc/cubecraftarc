@@ -73,6 +73,10 @@ import IframeModal from './react/IframeModal'
 import OverlayModelViewer from './react/OverlayModelViewer'
 import CornerIndicatorStats from './react/CornerIndicatorStats'
 import AllSettingsEditor from './react/AllSettingsEditor'
+import WalletConnect from './blockchain/WalletConnect'
+import LandMarket from './blockchain/LandMarket'
+import BusinessPanel from './blockchain/BusinessPanel'
+import EconomyDashboard from './blockchain/EconomyDashboard'
 import { isPlayground, urlParams } from './playgroundIntegration'
 import { withInjectableUi } from './react/extendableSystem'
 import { hadReactUiRegistered } from './clientMods'
@@ -266,6 +270,10 @@ const AppBase = () => {
             <CreditsAboutModal />
             <AllSettingsEditor />
             <NoModalFoundProvider />
+            <WalletConnect />
+            <LandMarket />
+            <BusinessPanel />
+            <EconomyDashboard />
           </RobustPortal>
           <RobustPortal to={document.body}>
             <div className='overlay-top-scaled'>

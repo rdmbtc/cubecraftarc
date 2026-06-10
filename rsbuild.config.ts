@@ -13,7 +13,12 @@ import { generateSW } from 'workbox-build'
 import { getSwAdditionalEntries } from './scripts/build'
 import { appAndRendererSharedConfig } from './renderer/rsbuildSharedConfig'
 import { genLargeDataAliases } from './scripts/genLargeDataAliases'
-import sharp from 'sharp'
+let sharp: typeof import('sharp') | undefined
+try {
+    sharp = require('sharp')
+} catch {
+    console.warn('sharp is not available, single-file build with image resizing will be skipped')
+}
 import supportedVersions from './src/supportedVersions.mjs'
 import { startWsServer } from './scripts/wsServer'
 import { applyWatermarkPackagesToConfig } from './scripts/watermarkLockfilePins'
@@ -284,8 +289,13 @@ const appConfig = defineConfig({
                             const supportedMajorVersions = [...new Set(supportedVersions.map(a => verToMajor(a)))].join(', ')
                             html = `<!DOCTYPE html><!-- MINECRAFT WEB CLIENT ${releaseTag ?? ''} -->\n<!-- A true SINGLE FILE BUILD with built-in server -->\n<!-- All textures, assets and Minecraft data for ${supportedMajorVersions} inlined into one file. -->\n${html}`
 
-                            const resizedImage = (await (sharp('./assets/favicon.png') as any).resize(64).toBuffer()).toString('base64')
-                            html = html.replace('favicon.png', `data:image/png;base64,${resizedImage}`)
+                            if (sharp) {
+                                const resizedImage = (await (sharp('./assets/favicon.png') as any).resize(64).toBuffer()).toString('base64')
+                                html = html.replace('favicon.png', `data:image/png;base64,${resizedImage}`)
+                            } else {
+                                const rawImage = fs.readFileSync('./assets/favicon.png', 'base64')
+                                html = html.replace('favicon.png', `data:image/png;base64,${rawImage}`)
+                            }
                             html = html.replace('src="./loading-bg.jpg"', `src="data:image/png;base64,${fs.readFileSync('./assets/loading-bg.jpg', 'base64')}"`)
                             html += '<script id="mesher-worker-code">' + fs.readFileSync('./dist/mesher.js', 'utf8') + '</script>'
                             fs.writeFileSync(singleBuildHtml, html, 'utf8')

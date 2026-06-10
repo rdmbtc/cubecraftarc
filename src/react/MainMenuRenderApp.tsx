@@ -140,6 +140,10 @@ const MainMenuRenderAppBase = () => {
             }}
             githubAction={() => openGithub()}
             optionsAction={() => openOptionsMenu('main')}
+            walletAction={() => showModal({ reactType: 'wallet-connect' })}
+            landMarketAction={() => showModal({ reactType: 'land-market' })}
+            businessAction={() => showModal({ reactType: 'business-panel' })}
+            economyAction={() => showModal({ reactType: 'economy-dashboard' })}
             bottomRightLinks={process.env.MAIN_MENU_LINKS}
             openFileAction={e => {
               if (!!window.showDirectoryPicker && !e.shiftKey) {

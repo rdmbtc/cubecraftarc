@@ -20,6 +20,7 @@ import useLongPress from './useLongPress'
 import PauseLinkButtons from './PauseLinkButtons'
 import CreditsBookButton from './CreditsBookButton'
 import { withInjectableUi } from './extendableSystem'
+import { walletState } from '../blockchain/walletState'
 
 type Action = (e: React.MouseEvent<HTMLButtonElement>) => void
 
@@ -29,6 +30,10 @@ interface Props {
   optionsAction?: Action
   githubAction?: Action
   openFileAction?: Action
+  walletAction?: Action
+  landMarketAction?: Action
+  businessAction?: Action
+  economyAction?: Action
   mapsProvider?: string
   versionStatus?: string
   versionTitle?: string
@@ -48,6 +53,10 @@ const MainMenuBase = ({
   optionsAction,
   githubAction,
   openFileAction,
+  walletAction,
+  landMarketAction,
+  businessAction,
+  economyAction,
   versionText,
   onVersionTextClick,
   versionStatus,
@@ -57,6 +66,7 @@ const MainMenuBase = ({
   singleplayerAvailable = true,
 }: Props) => {
   const { appConfig } = useSnapshot(miscUiState)
+  const wallet = useSnapshot(walletState)
 
   const splashText = useMemo(() => {
     const cachedText = getCachedSplashText()
@@ -148,13 +158,13 @@ const MainMenuBase = ({
       <div className={styles.menu}>
         <ButtonWithTooltip
           initialTooltip={{
-            content: 'Connect to Java servers!',
+            content: 'Enter the Tycoon World and build your empire!',
             placement: 'top',
           }}
           {...connectToServerLongPress}
           data-test-id='servers-screen-button'
         >
-          Connect to server
+          🎮 Enter Tycoon World
         </ButtonWithTooltip>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <ButtonWithTooltip
@@ -163,12 +173,12 @@ const MainMenuBase = ({
             data-test-id='singleplayer-button'
             disabled={!singleplayerAvailable}
             initialTooltip={{
-              content: 'Create worlds and play offline',
+              content: 'Build your own world offline',
               placement: 'left',
               offset: -40
             }}
           >
-            Singleplayer
+            🏗️ Build Mode
           </ButtonWithTooltip>
 
           <ButtonWithTooltip
@@ -189,6 +199,38 @@ const MainMenuBase = ({
             }}
           />
         </div>
+
+        {/* Blockchain buttons row */}
+        <div style={{ display: 'flex', gap: 4 }}>
+          <Button
+            onClick={walletAction}
+            style={{ flex: 1, fontSize: 12, position: 'relative' }}
+          >
+            💰 Wallet{wallet.connected ? ' ✓' : ''}
+          </Button>
+          <Button
+            onClick={landMarketAction}
+            style={{ flex: 1, fontSize: 12 }}
+          >
+            🌍 Land Market
+          </Button>
+        </div>
+
+        <div style={{ display: 'flex', gap: 4 }}>
+          <Button
+            onClick={businessAction}
+            style={{ flex: 1, fontSize: 12 }}
+          >
+            🏪 Businesses
+          </Button>
+          <Button
+            onClick={economyAction}
+            style={{ flex: 1, fontSize: 12 }}
+          >
+            📊 Economy
+          </Button>
+        </div>
+
         <Button
           onClick={optionsAction}
         >
@@ -208,7 +250,7 @@ const MainMenuBase = ({
             onClick={onVersionStatusClick}
             className={styles['product-info']}
           >
-            Prismarine Web Client {versionStatus}
+            CubeCraft Arc Tycoon {versionStatus}
           </span>
         </div>
         <span className={styles['product-description']}>
