@@ -1,6 +1,3 @@
 {
-  "buildCommand": "echo 'Pre-built static files'",
-  "outputDirectory": "./dist",
-  "installCommand": "echo 'No install needed'",
-  "framework": null
+  "outputDirectory": "dist"
 }
