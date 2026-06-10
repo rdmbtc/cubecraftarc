@@ -90,13 +90,296 @@ export class GameWorld {
             this.onPlayerJoin(player)
         })
 
-        this.server.on('playerChat', (player: any, message: string) => {
-            this.onPlayerChat(player, message)
-        })
-
         this.server.on('playerQuit', (player: any) => {
             this.onPlayerQuit(player)
         })
+
+        // Register tycoon commands via flying-squid command system
+        this.registerCommands()
+    }
+
+    /**
+     * Register all tycoon commands with flying-squid
+     */
+    private registerCommands(): void {
+        const serv = this.server
+        if (!serv?.commands) return
+
+        const getParcel = (player: any) => {
+            let x = 0, z = 0
+            if (player?.entity?.position) {
+                const pos = player.entity.position
+                x = Math.floor(pos.x / 16)
+                z = Math.floor(pos.z / 16)
+            }
+            const state = this.players.get(player.username)
+            if (state) state.currentParcel = { x, z }
+            return { x, z }
+        }
+
+        // /tycoonhelp - show all tycoon commands
+        serv.commands.add({
+            base: 'tycoonhelp',
+            info: 'Show CubeCraft Tycoon commands',
+            usage: '/tycoonhelp',
+            action(params: any, ctx: any) {
+                const p = ctx.player
+                if (!p) return
+                const lines = [
+                    '=== CubeCraft Arc Tycoon Commands ===',
+                    '/claim - Claim parcel you stand on',
+                    '/parcels - List your parcels',
+                    '/build <type> - Build business (shop/farm/mine/factory/marketplace/tower)',
+                    '/businesses - Show available business types',
+                    '/upgrade <num> - Upgrade business',
+                    '/balance - Check balance',
+                    '/leaderboard - Top players',
+                    '/market - Parcels for sale',
+                    '/sell <price> - List parcel for sale',
+                    '/buy - Buy parcel you stand on',
+                    '/info - World information',
+                ]
+                lines.forEach(l => p.chat(l))
+            }
+        })
+
+        // /claim
+        serv.commands.add({
+            base: 'claim',
+            info: 'Claim the parcel you are standing on',
+            usage: '/claim',
+            onlyPlayer: true,
+            action: (params: any, ctx: any) => {
+                const player = ctx.player
+                const { x, z } = getParcel(player)
+                const result = this.landManager.claimParcel(x, z, player.username)
+                player.chat(result.message)
+                if (result.success) {
+                    this.placeParcelMarkers(x, z, player.username)
+                }
+            }
+        })
+
+        // /parcels
+        serv.commands.add({
+            base: 'parcels',
+            info: 'List your owned parcels',
+            usage: '/parcels',
+            onlyPlayer: true,
+            action: (params: any, ctx: any) => {
+                const player = ctx.player
+                const parcels = this.landManager.getPlayerParcels(player.username)
+                if (parcels.length === 0) {
+                    player.chat('No parcels owned. Use /claim to claim one.')
+                    return
+                }
+                player.chat(`=== Your Parcels (${parcels.length}) ===`)
+                parcels.forEach((p: any, i: number) => {
+                    player.chat(`${i + 1}. (${p.x}, ${p.z}) | Value: ${p.value} | Buildings: ${p.structures.length}`)
+                })
+            }
+        })
+
+        // /build
+        serv.commands.add({
+            base: 'build',
+            info: 'Build a business on your parcel',
+            usage: '/build <shop|farm|mine|factory|marketplace|tower>',
+            onlyPlayer: true,
+            parse: (str: string) => {
+                if (!str) return false
+                return str.trim().toLowerCase()
+            },
+            action: (businessType: string, ctx: any) => {
+                const player = ctx.player
+                const { x, z } = getParcel(player)
+
+                // Auto-claim if not owned
+                const parcel = this.landManager.getParcel(x, z)
+                if (parcel && !parcel.owner) {
+                    this.landManager.claimParcel(x, z, player.username)
+                    player.chat(`Auto-claimed parcel (${x}, ${z})`)
+                }
+
+                const result = this.economy.buildBusiness(player.username, x, z, businessType)
+                player.chat(result.message)
+                if (result.success) {
+                    this.placeBuildingBlocks(x, z, businessType, player.username)
+                }
+            }
+        })
+
+        // /businesses
+        serv.commands.add({
+            base: 'businesses',
+            info: 'Show available business types',
+            usage: '/businesses',
+            onlyPlayer: true,
+            action: (params: any, ctx: any) => {
+                const player = ctx.player
+                player.chat('=== Available Businesses ===')
+                BUSINESS_TEMPLATES.forEach(b => {
+                    player.chat(`${b.type} - ${b.name} (${b.buildCost} coins, +${b.revenuePerTick}/tick)`)
+                })
+            }
+        })
+
+        // /upgrade
+        serv.commands.add({
+            base: 'upgrade',
+            info: 'Upgrade a business on your parcel',
+            usage: '/upgrade <number>',
+            onlyPlayer: true,
+            parse: (str: string) => {
+                const num = parseInt(str)
+                if (isNaN(num) || num < 1) return false
+                return num - 1
+            },
+            action: (index: number, ctx: any) => {
+                const player = ctx.player
+                const { x, z } = getParcel(player)
+                const result = this.economy.upgradeBusiness(player.username, x, z, index)
+                player.chat(result.message)
+            }
+        })
+
+        // /balance
+        serv.commands.add({
+            base: 'balance',
+            aliases: ['bal'],
+            info: 'Check your coin balance',
+            usage: '/balance',
+            onlyPlayer: true,
+            action: (params: any, ctx: any) => {
+                const player = ctx.player
+                const account = this.economy.getOrCreateAccount(player.username)
+                player.chat(`Balance: ${account.balance} coins | Income: +${account.income}/tick | Earned: ${account.totalEarned}`)
+            }
+        })
+
+        // /leaderboard
+        serv.commands.add({
+            base: 'leaderboard',
+            aliases: ['top'],
+            info: 'View top players',
+            usage: '/leaderboard',
+            action: (params: any, ctx: any) => {
+                const player = ctx.player
+                const lb = this.economy.getLeaderboard(10)
+                if (player) {
+                    player.chat('=== Leaderboard ===')
+                    lb.forEach((a: any, i: number) => {
+                        player.chat(`${i + 1}. ${a.name}: ${a.balance} coins`)
+                    })
+                }
+            }
+        })
+
+        // /market
+        serv.commands.add({
+            base: 'market',
+            info: 'View parcels for sale',
+            usage: '/market',
+            onlyPlayer: true,
+            action: (params: any, ctx: any) => {
+                const player = ctx.player
+                const forSale = this.landManager.getParcelsForSale()
+                if (forSale.length === 0) {
+                    player.chat('No parcels for sale.')
+                    return
+                }
+                player.chat('=== Market ===')
+                forSale.slice(0, 10).forEach((p: any) => {
+                    player.chat(`(${p.x}, ${p.z}) - ${p.salePrice} coins | Buildings: ${p.structures.length}`)
+                })
+            }
+        })
+
+        // /sell
+        serv.commands.add({
+            base: 'sell',
+            info: 'List your parcel for sale',
+            usage: '/sell <price>',
+            onlyPlayer: true,
+            parse: (str: string) => {
+                const price = parseInt(str)
+                if (isNaN(price) || price <= 0) return false
+                return price
+            },
+            action: (price: number, ctx: any) => {
+                const player = ctx.player
+                const { x, z } = getParcel(player)
+                const result = this.landManager.listForSale(x, z, player.username, price)
+                player.chat(result.message)
+            }
+        })
+
+        // /buy
+        serv.commands.add({
+            base: 'buy',
+            info: 'Buy the parcel you are standing on',
+            usage: '/buy',
+            onlyPlayer: true,
+            action: (params: any, ctx: any) => {
+                const player = ctx.player
+                const { x, z } = getParcel(player)
+                const parcel = this.landManager.getParcel(x, z)
+                if (!parcel) { player.chat('Parcel does not exist'); return }
+                if (!parcel.forSale) { player.chat('Not for sale'); return }
+                const account = this.economy.getOrCreateAccount(player.username)
+                if (account.balance < parcel.salePrice) {
+                    player.chat(`Need ${parcel.salePrice} coins, have ${account.balance}`)
+                    return
+                }
+                const result = this.landManager.buyParcel(x, z, player.username)
+                if (result.success && result.price) {
+                    this.economy.deductFunds(player.username, result.price, `Bought parcel (${x},${z})`)
+                    if (parcel.owner) {
+                        this.economy.addFunds(parcel.owner, result.price, `Sold parcel (${x},${z})`)
+                    }
+                }
+                player.chat(result.message)
+            }
+        })
+
+        // /info
+        serv.commands.add({
+            base: 'info',
+            info: 'World information',
+            usage: '/info',
+            onlyPlayer: true,
+            action: (params: any, ctx: any) => {
+                const player = ctx.player
+                const land = this.landManager.getStats()
+                const eco = this.economy.getStats()
+                const grid = this.landManager.getGridInfo()
+                player.chat('=== CubeCraft Arc Tycoon ===')
+                player.chat(`Grid: ${grid.gridSize}x${grid.gridSize} (${grid.parcelSize}x${grid.parcelSize} per parcel)`)
+                player.chat(`Land: ${land.claimed}/${land.total} claimed (${land.forSale} for sale)`)
+                player.chat(`Players: ${eco.totalPlayers} | Economy: ${eco.totalBalance} coins`)
+            }
+        })
+
+        // /tycoongive - give coins (admin)
+        serv.commands.add({
+            base: 'tycoongive',
+            info: 'Give coins to a player (admin)',
+            usage: '/tycoongive <player> <amount>',
+            op: true,
+            parse: (str: string) => {
+                const parts = str.split(/\s+/)
+                if (parts.length < 2) return false
+                const amount = parseInt(parts[1])
+                if (isNaN(amount)) return false
+                return { player: parts[0], amount }
+            },
+            action: (args: any, ctx: any) => {
+                this.economy.addFunds(args.player, args.amount, 'Admin give')
+                if (ctx.player) ctx.player.chat(`Gave ${args.amount} coins to ${args.player}`)
+            }
+        })
+
+        console.log('Tycoon commands registered')
     }
 
     /**
@@ -169,33 +452,6 @@ export class GameWorld {
     }
 
     /**
-     * Handle player chat
-     */
-    private onPlayerChat(player: any, message: string): void {
-        const playerName = player.username
-        console.log(`[Chat] ${playerName}: ${message}`)
-
-        // Store in chat history
-        this.chatHistory.push({
-            player: playerName,
-            message,
-            timestamp: Date.now()
-        })
-        if (this.chatHistory.length > this.maxChatHistory) {
-            this.chatHistory.shift()
-        }
-
-        // Handle commands
-        if (message.startsWith('/')) {
-            this.handleCommand(playerName, message)
-            return
-        }
-
-        // Broadcast regular chat
-        this.broadcastChat(`<${playerName}> ${message}`)
-    }
-
-    /**
      * Handle player quit
      */
     private onPlayerQuit(player: any): void {
@@ -205,129 +461,6 @@ export class GameWorld {
         const state = this.players.get(playerName)
         if (state) {
             state.connected = false
-        }
-    }
-
-    /**
-     * Handle player commands
-     */
-    private handleCommand(playerName: string, message: string): void {
-        const parts = message.trim().split(/\s+/)
-        const command = parts[0].toLowerCase()
-        const args = parts.slice(1)
-
-        switch (command) {
-            case '/help':
-                this.sendHelp(playerName)
-                break
-            case '/balance':
-            case '/bal':
-                this.sendBalance(playerName)
-                break
-            case '/claim':
-                this.handleClaim(playerName)
-                break
-            case '/parcels':
-                this.handleParcels(playerName)
-                break
-            case '/build':
-                this.handleBuild(playerName, args)
-                break
-            case '/businesses':
-                this.sendBusinessList(playerName)
-                break
-            case '/upgrade':
-                this.handleUpgrade(playerName, args)
-                break
-            case '/leaderboard':
-            case '/top':
-                this.sendLeaderboard(playerName)
-                break
-            case '/sell':
-                this.handleSell(playerName, args)
-                break
-            case '/buy':
-                this.handleBuy(playerName, args)
-                break
-            case '/market':
-                this.sendMarket(playerName)
-                break
-            case '/release':
-                this.handleRelease(playerName)
-                break
-            case '/transfer':
-                this.handleTransfer(playerName, args)
-                break
-            case '/info':
-                this.sendWorldInfo(playerName)
-                break
-            default:
-                this.sendChat(playerName, `Unknown command: ${command}. Type /help for available commands.`)
-        }
-    }
-
-    /**
-     * Send help message
-     */
-    private sendHelp(playerName: string): void {
-        const help = [
-            '=== CubeCraft Arc Tycoon Commands ===',
-            '/help - Show this help message',
-            '/balance - Check your balance',
-            '/claim - Claim the parcel you are standing on',
-            '/parcels - List your owned parcels',
-            '/build <type> - Build a business on current parcel',
-            '/businesses - List available business types',
-            '/upgrade <index> - Upgrade a structure on current parcel',
-            '/sell <price> - List current parcel for sale',
-            '/buy - Buy the parcel you are standing on',
-            '/market - View parcels for sale',
-            '/release - Release current parcel',
-            '/transfer <player> <amount> - Transfer coins to another player',
-            '/leaderboard - View top players',
-            '/info - View world information'
-        ]
-        help.forEach(line => this.sendChat(playerName, line))
-    }
-
-    /**
-     * Send balance info
-     */
-    private sendBalance(playerName: string): void {
-        const account = this.economy.getOrCreateAccount(playerName)
-        this.sendChat(playerName, `Balance: ${account.balance} coins | Income: ${account.income}/tick | Total earned: ${account.totalEarned}`)
-    }
-
-    /**
-     * Handle claim command
-     */
-    private handleClaim(playerName: string): void {
-        const state = this.players.get(playerName)
-
-        // Auto-detect parcel from player position
-        let x = 0, z = 0
-        if (this.server?.players) {
-            const player = Object.values(this.server.players).find((p: any) => p.username === playerName) as any
-            if (player?.entity?.position) {
-                const pos = player.entity.position
-                x = Math.floor(pos.x / 16)
-                z = Math.floor(pos.z / 16)
-                if (state) state.currentParcel = { x, z }
-            } else if (state?.currentParcel) {
-                x = state.currentParcel.x
-                z = state.currentParcel.z
-            }
-        } else if (state?.currentParcel) {
-            x = state.currentParcel.x
-            z = state.currentParcel.z
-        }
-
-        const result = this.landManager.claimParcel(x, z, playerName)
-        this.sendChat(playerName, result.message)
-
-        // Place parcel boundary markers if claim succeeded
-        if (result.success) {
-            this.placeParcelMarkers(x, z, playerName)
         }
     }
 
