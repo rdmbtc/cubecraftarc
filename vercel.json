@@ -1,7 +1,7 @@
 {
     "buildCommand": "pnpm build",
     "outputDirectory": "dist",
-    "framework": null,
+    "framework": "other",
     "installCommand": "pnpm install",
     "github": {
         "enabled": false,
