@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm -w build",
+  "buildCommand": "npx tsx scripts/genShims.ts && npx tsx scripts/makeOptimizedMcData.mjs && npx tsx scripts/genLargeDataAliases.ts && npx rsbuild build",
   "outputDirectory": "dist",
   "installCommand": "pnpm install"
 }
