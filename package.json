@@ -24,7 +24,7 @@
     "lint-fix": "pnpm lint --fix",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build && node scripts/build.js moveStorybookFiles",
-    "start-experiments": "vite --config experiments/vite.config.ts --host",
+    "start-experiments": "vite --config experiments/vite.config.dev.ts --host",
     "watch-other-workers": "echo NOT IMPLEMENTED",
     "build-other-workers": "echo NOT IMPLEMENTED",
     "build-mesher": "node renderer/buildMesherWorker.mjs",
