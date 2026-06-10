@@ -468,18 +468,25 @@ export class GameWorld {
      * Place corner markers for a claimed parcel
      */
     private placeParcelMarkers(parcelX: number, parcelZ: number, playerName: string): void {
-        if (!this.server?.players) return
+        const serv = this.server
+        if (!serv) return
 
-        const player = Object.values(this.server.players).find((p: any) => p.username === playerName) as any
+        const player = Object.values(serv.players || {}).find((p: any) => p.username === playerName) as any
         if (!player?.world) return
 
+        const Vec3 = require('vec3').Vec3
         const world = player.world
         const baseX = parcelX * 16
         const baseZ = parcelZ * 16
         const y = 64
 
         try {
-            // Place corner markers (glowstone = 89)
+            // Place corner markers (glowstone defaultState)
+            const mcData = require('prismarine-registry')(serv.version)
+            const glowstone = mcData.blocksByName.glowstone.defaultState
+            const stoneSlab = mcData.blocksByName.stone_slab.defaultState + 8 // top variant
+            const oakSign = mcData.blocksByName.oak_sign.defaultState
+
             const corners = [
                 { x: baseX, z: baseZ },
                 { x: baseX + 15, z: baseZ },
@@ -487,12 +494,12 @@ export class GameWorld {
                 { x: baseX + 15, z: baseZ + 15 },
             ]
             for (const c of corners) {
-                world.setBlock({ x: c.x, y, z: c.z }, 89, 0) // glowstone
-                world.setBlock({ x: c.x, y: y + 1, z: c.z }, 44, 8) // stone slab (top)
+                serv.setBlock(world, new Vec3(c.x, y, c.z), glowstone)
+                serv.setBlock(world, new Vec3(c.x, y + 1, c.z), stoneSlab)
             }
 
             // Place a sign at the entrance
-            world.setBlock({ x: baseX + 8, y, z: baseZ }, 63, 0) // sign
+            serv.setBlock(world, new Vec3(baseX + 8, y, baseZ), oakSign)
 
             console.log(`Placed parcel markers for ${playerName} at (${parcelX}, ${parcelZ})`)
         } catch (err) {
@@ -566,80 +573,97 @@ export class GameWorld {
      * Place actual Minecraft blocks for a business building
      */
     private placeBuildingBlocks(parcelX: number, parcelZ: number, businessType: string, playerName: string): void {
-        if (!this.server?.players) return
+        const serv = this.server
+        if (!serv) return
 
-        const player = Object.values(this.server.players).find((p: any) => p.username === playerName) as any
-        if (!player) return
+        const player = Object.values(serv.players || {}).find((p: any) => p.username === playerName) as any
+        if (!player?.world) return
 
+        const Vec3 = require('vec3').Vec3
+        const mcData = require('prismarine-registry')(serv.version)
         const world = player.world
-        if (!world) return
 
-        // Building templates — each type has a different block pattern
+        // Building templates using block names
         const baseX = parcelX * 16 + 2
         const baseZ = parcelZ * 16 + 2
-        const baseY = 64 // ground level
+        const baseY = 64
 
-        const buildings: Record<string, { width: number; depth: number; height: number; wall: number; floor: number; roof: number }> = {
-            shop: { width: 5, depth: 5, height: 4, wall: 5, floor: 5, roof: 156 }, // planks, planks, quartz stairs
-            farm: { width: 7, depth: 7, height: 3, wall: 3, floor: 60, roof: 2 }, // dirt walls, farmland, grass
-            mine: { width: 5, depth: 5, height: 5, wall: 4, floor: 4, roof: 4 }, // cobblestone
-            factory: { width: 7, depth: 5, height: 5, wall: 42, floor: 42, roof: 42 }, // iron block
-            marketplace: { width: 9, depth: 7, height: 5, wall: 5, floor: 5, roof: 162 }, // oak planks, acacia stairs
-            tower: { width: 5, depth: 5, height: 10, wall: 98, floor: 98, roof: 155 }, // stone bricks, quartz
+        const buildings: Record<string, { w: number; d: number; h: number; wall: string; floor: string; roof: string }> = {
+            shop:        { w: 5, d: 5, h: 4, wall: 'oak_planks',      floor: 'oak_planks',    roof: 'oak_planks' },
+            farm:        { w: 7, d: 7, h: 3, wall: 'dirt',            floor: 'farmland',      roof: 'grass_block' },
+            mine:        { w: 5, d: 5, h: 5, wall: 'cobblestone',     floor: 'cobblestone',   roof: 'cobblestone' },
+            factory:     { w: 7, d: 5, h: 5, wall: 'iron_block',      floor: 'iron_block',    roof: 'iron_block' },
+            marketplace: { w: 9, d: 7, h: 5, wall: 'oak_planks',      floor: 'oak_planks',    roof: 'spruce_planks' },
+            tower:       { w: 5, d: 5, h:10, wall: 'stone_bricks',    floor: 'stone_bricks',  roof: 'quartz_block' },
         }
 
         const b = buildings[businessType] || buildings.shop
+        const getBlock = (name: string) => {
+            const block = mcData.blocksByName[name]
+            return block ? block.defaultState : 0
+        }
+
+        const wallId = getBlock(b.wall)
+        const floorId = getBlock(b.floor)
+        const roofId = getBlock(b.roof)
+        const airId = 0
+        const glowstoneId = getBlock('glowstone')
+        const doorId = getBlock('oak_door')
 
         try {
             // Floor
-            for (let dx = 0; dx < b.width; dx++) {
-                for (let dz = 0; dz < b.depth; dz++) {
-                    world.setBlock({ x: baseX + dx, y: baseY, z: baseZ + dz }, b.floor, 0)
+            for (let dx = 0; dx < b.w; dx++) {
+                for (let dz = 0; dz < b.d; dz++) {
+                    serv.setBlock(world, new Vec3(baseX + dx, baseY, baseZ + dz), floorId)
                 }
             }
 
             // Walls
-            for (let dy = 1; dy < b.height; dy++) {
-                for (let dx = 0; dx < b.width; dx++) {
-                    world.setBlock({ x: baseX + dx, y: baseY + dy, z: baseZ }, b.wall, 0)
-                    world.setBlock({ x: baseX + dx, y: baseY + dy, z: baseZ + b.depth - 1 }, b.wall, 0)
+            for (let dy = 1; dy < b.h; dy++) {
+                for (let dx = 0; dx < b.w; dx++) {
+                    serv.setBlock(world, new Vec3(baseX + dx, baseY + dy, baseZ), wallId)
+                    serv.setBlock(world, new Vec3(baseX + dx, baseY + dy, baseZ + b.d - 1), wallId)
                 }
-                for (let dz = 0; dz < b.depth; dz++) {
-                    world.setBlock({ x: baseX, y: baseY + dy, z: baseZ + dz }, b.wall, 0)
-                    world.setBlock({ x: baseX + b.width - 1, y: baseY + dy, z: baseZ + dz }, b.wall, 0)
+                for (let dz = 0; dz < b.d; dz++) {
+                    serv.setBlock(world, new Vec3(baseX, baseY + dy, baseZ + dz), wallId)
+                    serv.setBlock(world, new Vec3(baseX + b.w - 1, baseY + dy, baseZ + dz), wallId)
                 }
             }
 
             // Roof
-            for (let dx = 0; dx < b.width; dx++) {
-                for (let dz = 0; dz < b.depth; dz++) {
-                    world.setBlock({ x: baseX + dx, y: baseY + b.height, z: baseZ + dz }, b.roof, 0)
+            for (let dx = 0; dx < b.w; dx++) {
+                for (let dz = 0; dz < b.d; dz++) {
+                    serv.setBlock(world, new Vec3(baseX + dx, baseY + b.h, baseZ + dz), roofId)
                 }
             }
 
             // Door (clear front wall center)
-            const doorX = baseX + Math.floor(b.width / 2)
-            world.setBlock({ x: doorX, y: baseY + 1, z: baseZ }, 0, 0) // air
-            world.setBlock({ x: doorX, y: baseY + 2, z: baseZ }, 0, 0) // air
-
-            // Sign with business name
-            const signX = doorX
-            const signY = baseY + 3
-            const signZ = baseZ
-            // Place sign block (standing sign = 63)
-            world.setBlock({ x: signX, y: signY, z: signZ }, 63, 0)
+            const doorX = baseX + Math.floor(b.w / 2)
+            serv.setBlock(world, new Vec3(doorX, baseY + 1, baseZ), airId)
+            serv.setBlock(world, new Vec3(doorX, baseY + 2, baseZ), airId)
 
             // Interior: clear inside
-            for (let dy = 1; dy < b.height; dy++) {
-                for (let dx = 1; dx < b.width - 1; dx++) {
-                    for (let dz = 1; dz < b.depth - 1; dz++) {
-                        world.setBlock({ x: baseX + dx, y: baseY + dy, z: baseZ + dz }, 0, 0)
+            for (let dy = 1; dy < b.h; dy++) {
+                for (let dx = 1; dx < b.w - 1; dx++) {
+                    for (let dz = 1; dz < b.d - 1; dz++) {
+                        serv.setBlock(world, new Vec3(baseX + dx, baseY + dy, baseZ + dz), airId)
                     }
                 }
             }
 
-            // Interior lighting (glowstone)
-            world.setBlock({ x: baseX + Math.floor(b.width / 2), y: baseY + b.height - 1, z: baseZ + Math.floor(b.depth / 2) }, 89, 0)
+            // Interior lighting (glowstone in center ceiling)
+            serv.setBlock(world, new Vec3(baseX + Math.floor(b.w / 2), baseY + b.h - 1, baseZ + Math.floor(b.d / 2)), glowstoneId)
+
+            // Force chunk update for all nearby players
+            const chunkX = Math.floor(baseX / 16)
+            const chunkZ = Math.floor(baseZ / 16)
+            for (let cx = chunkX - 1; cx <= chunkX + 1; cx++) {
+                for (let cz = chunkZ - 1; cz <= chunkZ + 1; cz++) {
+                    world.getColumn(cx, cz).then((column: any) => {
+                        player.sendChunk(cx, cz, column)
+                    }).catch(() => {})
+                }
+            }
 
             console.log(`Placed ${businessType} building at (${baseX}, ${baseY}, ${baseZ}) for ${playerName}`)
         } catch (err) {
