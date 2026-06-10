@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "defaultHost": "<from-proxy>",
+  "defaultHost": "ws://150.241.88.229:25568",
   "defaultProxy": "https://proxy.mcraft.fun",
   "mapsProvider": "https://maps.mcraft.fun/",
   "skinTexturesProxy": "",
@@ -8,8 +8,12 @@
   "peerJsServerFallback": "https://p2p.mcraft.fun",
   "promoteServers": [
     {
-      "ip": "ws://150.241.88.229:25566",
+      "ip": "ws://150.241.88.229:25568",
       "name": "CubeCraft Arc Tycoon"
+    },
+    {
+      "ip": "ws://150.241.88.229:25566",
+      "name": "CubeCraft Management"
     }
   ],
   "rightSideText": "Build Your Empire on Arc Blockchain!",

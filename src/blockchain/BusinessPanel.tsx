@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSnapshot } from 'valtio'
 import { walletState } from './walletState'
+
+const API_BASE = 'http://150.241.88.229:25567'
 
 const styles = {
   overlay: {
@@ -16,7 +18,7 @@ const styles = {
     background: '#1a1a2e',
     borderRadius: 12,
     padding: 24,
-    width: 550,
+    width: 600,
     maxHeight: '80vh',
     overflow: 'auto' as const,
     border: '1px solid #16213e',
@@ -75,80 +77,264 @@ const styles = {
     background: '#0f3460',
     borderRadius: 8,
   },
+  template: {
+    background: '#16213e',
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 10,
+    display: 'flex',
+    justifyContent: 'space-between' as const,
+    alignItems: 'center',
+    cursor: 'pointer',
+    border: '2px solid transparent',
+    transition: 'all 0.2s',
+  },
 }
 
 const BUSINESS_ICONS: Record<string, string> = {
-  Shop: '🏪',
-  Farm: '🌾',
-  Mine: '⛏️',
-  Factory: '🏭',
-  Marketplace: '🛒',
-  Tower: '🗼',
+  shop: '🏪',
+  farm: '🌾',
+  mine: '⛏️',
+  factory: '🏭',
+  marketplace: '🛒',
+  tower: '🗼',
 }
 
-const DEMO_BUSINESSES = [
-  { id: 1, type: 'Shop', level: 2, revenuePerHour: 1.0, totalEarned: 24.5, parcelId: 1 },
-  { id: 2, type: 'Farm', level: 1, revenuePerHour: 0.3, totalEarned: 7.2, parcelId: 3 },
-  { id: 3, type: 'Factory', level: 3, revenuePerHour: 3.6, totalEarned: 86.4, parcelId: 5 },
-]
+interface BusinessTemplate {
+  type: string
+  name: string
+  description: string
+  buildCost: number
+  revenuePerTick: number
+}
+
+interface PlayerBusiness {
+  type: string
+  name: string
+  level: number
+  revenuePerTick: number
+  position: { x: number; y: number; z: number }
+  parcelX: number
+  parcelZ: number
+}
 
 export default function BusinessPanel() {
-  const [claiming, setClaiming] = useState<number | null>(null)
+  const [templates, setTemplates] = useState<BusinessTemplate[]>([])
+  const [myBusinesses, setMyBusinesses] = useState<PlayerBusiness[]>([])
+  const [view, setView] = useState<'my' | 'build'>('my')
+  const [building, setBuilding] = useState<string | null>(null)
+  const [playerBalance, setPlayerBalance] = useState<number>(0)
 
   if (!walletState.showBusinessPanel) return null
 
-  const totalRevenue = DEMO_BUSINESSES.reduce((sum, b) => sum + b.revenuePerHour, 0)
-  const totalEarned = DEMO_BUSINESSES.reduce((sum, b) => sum + b.totalEarned, 0)
+  useEffect(() => {
+    if (!walletState.showBusinessPanel) return
 
-  const handleClaim = (businessId: number) => {
-    setClaiming(businessId)
-    setTimeout(() => {
-      alert(`Revenue claimed for Business #${businessId}! (Demo mode)`)
-      setClaiming(null)
-    }, 1000)
+    const fetchData = async () => {
+      try {
+        const [bizRes] = await Promise.all([
+          fetch(`${API_BASE}/api/businesses`).then(r => r.json()),
+        ])
+        setTemplates(bizRes || [])
+
+        // Fetch player's businesses
+        const botUsername = (window as any).bot?.username
+        if (botUsername) {
+          const playerRes = await fetch(`${API_BASE}/api/player/${encodeURIComponent(botUsername)}`).then(r => r.json()).catch(() => null)
+          if (playerRes) setPlayerBalance(playerRes.balance || 0)
+
+          const parcelsRes = await fetch(`${API_BASE}/api/land/player/${encodeURIComponent(botUsername)}`).then(r => r.json()).catch(() => [])
+          const businesses: PlayerBusiness[] = []
+          for (const parcel of (parcelsRes || [])) {
+            for (const s of parcel.structures || []) {
+              businesses.push({ ...s, parcelX: parcel.x, parcelZ: parcel.z })
+            }
+          }
+          setMyBusinesses(businesses)
+        }
+      } catch (e) {
+        console.error('Failed to fetch business data:', e)
+      }
+    }
+
+    fetchData()
+  }, [walletState.showBusinessPanel])
+
+  const handleBuild = (template: BusinessTemplate) => {
+    if (playerBalance < template.buildCost) {
+      alert(`Not enough coins! Need ${template.buildCost}, have ${playerBalance}`)
+      return
+    }
+
+    const bot = (window as any).bot
+    if (bot) {
+      bot.chat(`/build ${template.type}`)
+      setBuilding(template.type)
+      alert(`Building ${template.name}... Check chat for result.`)
+      setTimeout(() => setBuilding(null), 2000)
+    }
   }
+
+  const handleClaimRevenue = () => {
+    const bot = (window as any).bot
+    if (bot) {
+      bot.chat('/balance')
+      alert('Revenue is auto-collected every minute! Check /balance in chat.')
+    }
+  }
+
+  const handleUpgrade = (index: number) => {
+    const bot = (window as any).bot
+    if (bot) {
+      bot.chat(`/upgrade ${index + 1}`)
+      alert('Upgrading... Check chat for result.')
+    }
+  }
+
+  const totalRevenue = myBusinesses.reduce((sum, b) => sum + b.revenuePerTick, 0)
 
   return (
     <div style={styles.overlay} onClick={() => walletState.showBusinessPanel = false}>
       <div style={styles.modal} onClick={e => e.stopPropagation()}>
-        <div style={styles.title}>🏗️ My Businesses</div>
+        <div style={styles.title}>🏗️ Businesses</div>
 
+        {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 20 }}>
           <div style={styles.stat}>
-            <div style={{ fontSize: 11, color: '#aaa' }}>Businesses</div>
-            <div style={{ fontSize: 24, fontWeight: 'bold', color: '#ff9f43' }}>{DEMO_BUSINESSES.length}</div>
+            <div style={{ fontSize: 11, color: '#aaa' }}>My Businesses</div>
+            <div style={{ fontSize: 24, fontWeight: 'bold', color: '#ff9f43' }}>{myBusinesses.length}</div>
           </div>
           <div style={styles.stat}>
-            <div style={{ fontSize: 11, color: '#aaa' }}>Revenue/hr</div>
-            <div style={{ fontSize: 24, fontWeight: 'bold', color: '#4ecca3' }}>${totalRevenue.toFixed(1)}</div>
+            <div style={{ fontSize: 11, color: '#aaa' }}>Revenue/tick</div>
+            <div style={{ fontSize: 24, fontWeight: 'bold', color: '#4ecca3' }}>{totalRevenue.toFixed(1)}</div>
           </div>
           <div style={styles.stat}>
-            <div style={{ fontSize: 11, color: '#aaa' }}>Total Earned</div>
-            <div style={{ fontSize: 24, fontWeight: 'bold', color: '#00d4ff' }}>${totalEarned.toFixed(1)}</div>
+            <div style={{ fontSize: 11, color: '#aaa' }}>Balance</div>
+            <div style={{ fontSize: 24, fontWeight: 'bold', color: '#00d4ff' }}>{playerBalance}</div>
           </div>
         </div>
 
-        {DEMO_BUSINESSES.map(biz => (
-          <div key={biz.id} style={styles.business}>
-            <div>
-              <div style={{ fontSize: 16 }}>{BUSINESS_ICONS[biz.type]} {biz.type}</div>
-              <div style={{ fontSize: 11, color: '#aaa', marginTop: 4 }}>Level {biz.level} • Parcel #{biz.parcelId}</div>
-              <div style={{ fontSize: 12, color: '#4ecca3', marginTop: 2 }}>
-                ${biz.revenuePerHour}/hr • Earned: ${biz.totalEarned.toFixed(1)}
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button style={styles.claimBtn} onClick={() => handleClaim(biz.id)} disabled={claiming === biz.id}>
-                {claiming === biz.id ? '...' : '💰 Claim'}
-              </button>
-              <button style={styles.upgradeBtn}>⬆️ Upgrade</button>
-            </div>
-          </div>
-        ))}
+        {/* Tabs */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+          <button
+            style={{
+              padding: '8px 20px',
+              border: 'none',
+              borderRadius: '8px 8px 0 0',
+              cursor: 'pointer',
+              fontSize: 12,
+              fontWeight: 'bold' as const,
+              fontFamily: 'Minecraft, monospace',
+              background: view === 'my' ? '#ff9f43' : '#16213e',
+              color: view === 'my' ? 'white' : '#aaa',
+              marginRight: 4,
+            }}
+            onClick={() => setView('my')}
+          >📦 My Businesses</button>
+          <button
+            style={{
+              padding: '8px 20px',
+              border: 'none',
+              borderRadius: '8px 8px 0 0',
+              cursor: 'pointer',
+              fontSize: 12,
+              fontWeight: 'bold' as const,
+              fontFamily: 'Minecraft, monospace',
+              background: view === 'build' ? '#00d4ff' : '#16213e',
+              color: view === 'build' ? 'white' : '#aaa',
+            }}
+            onClick={() => setView('build')}
+          >🏗️ Build New</button>
+        </div>
 
-        <button style={styles.buildBtn}>🏗️ Build New Business (Select a land parcel first)</button>
+        {view === 'my' ? (
+          myBusinesses.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 30 }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>🏗️</div>
+              <div style={{ color: '#aaa', fontSize: 14 }}>No businesses yet!</div>
+              <div style={{ color: '#555', fontSize: 11, marginTop: 8 }}>
+                1. Claim a land parcel with <code style={{ color: '#4ecca3' }}>/claim</code><br />
+                2. Build a business with <code style={{ color: '#4ecca3' }}>/build &lt;type&gt;</code><br />
+                3. Earn coins automatically every minute!
+              </div>
+              <button style={{ ...styles.buildBtn, marginTop: 16 }} onClick={() => setView('build')}>
+                🏗️ Browse Available Businesses
+              </button>
+            </div>
+          ) : (
+            <>
+              {myBusinesses.map((biz, i) => (
+                <div key={i} style={styles.business}>
+                  <div>
+                    <div style={{ fontSize: 16 }}>{BUSINESS_ICONS[biz.type] || '🏢'} {biz.name}</div>
+                    <div style={{ fontSize: 11, color: '#aaa', marginTop: 4 }}>
+                      Level {biz.level} • Parcel ({biz.parcelX}, {biz.parcelZ})
+                    </div>
+                    <div style={{ fontSize: 12, color: '#4ecca3', marginTop: 2 }}>
+                      +{biz.revenuePerTick.toFixed(1)}/tick
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      style={styles.upgradeBtn}
+                      onClick={() => handleUpgrade(i)}
+                    >⬆️ Upgrade</button>
+                  </div>
+                </div>
+              ))}
+              <button style={styles.claimBtn} onClick={handleClaimRevenue}>
+                💰 Check Revenue (auto-collected)
+              </button>
+            </>
+          )
+        ) : (
+          <>
+            <div style={{ textAlign: 'center', marginBottom: 12, color: '#aaa', fontSize: 12 }}>
+              Select a business to build on your current parcel. You need to own a land parcel first.
+            </div>
+            {templates.map(template => (
+              <div
+                key={template.type}
+                style={{
+                  ...styles.template,
+                  borderColor: playerBalance >= template.buildCost ? '#4ecca340' : '#ff444440',
+                  opacity: playerBalance >= template.buildCost ? 1 : 0.6,
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = playerBalance >= template.buildCost ? '#4ecca3' : '#ff4444'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = playerBalance >= template.buildCost ? '#4ecca340' : '#ff444440'
+                }}
+                onClick={() => handleBuild(template)}
+              >
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 'bold' }}>
+                    {BUSINESS_ICONS[template.type] || '🏢'} {template.name}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#aaa', marginTop: 4 }}>
+                    {template.description}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#4ecca3', marginTop: 4 }}>
+                    +{template.revenuePerTick}/tick
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 16, fontWeight: 'bold', color: '#ff9f43' }}>
+                    {template.buildCost}
+                  </div>
+                  <div style={{ fontSize: 10, color: '#aaa' }}>coins</div>
+                  {building === template.type && (
+                    <div style={{ fontSize: 10, color: '#4ecca3', marginTop: 4 }}>Building...</div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+
         <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#555' }}>
-          Businesses generate USDC revenue over time • Upgrade to increase earnings
+          Businesses generate coin revenue every tick • Upgrade to increase earnings
         </div>
       </div>
     </div>

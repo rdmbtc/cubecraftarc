@@ -77,6 +77,7 @@ import WalletConnect from './blockchain/WalletConnect'
 import LandMarket from './blockchain/LandMarket'
 import BusinessPanel from './blockchain/BusinessPanel'
 import EconomyDashboard from './blockchain/EconomyDashboard'
+import TycoonHUD from './react/TycoonHUD'
 import { isPlayground, urlParams } from './playgroundIntegration'
 import { withInjectableUi } from './react/extendableSystem'
 import { hadReactUiRegistered } from './clientMods'
@@ -197,6 +198,7 @@ const InGameUi = () => {
         <FullscreenTime />
         <MineflayerPluginHud />
         <MineflayerPluginConsole />
+        <TycoonHUD />
         {showUI && <TouchInteractionHint />}
         <GlobalOverlayHints />
         <div style={{ display: showUI ? 'block' : 'none' }}>
