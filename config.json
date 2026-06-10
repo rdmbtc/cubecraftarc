@@ -8,7 +8,7 @@
   "peerJsServerFallback": "https://p2p.mcraft.fun",
   "promoteServers": [
     {
-      "ip": "wss://cubecraft-arc.fly.dev",
+      "ip": "ws://150.241.88.229:25566",
       "name": "CubeCraft Arc Tycoon"
     }
   ],
