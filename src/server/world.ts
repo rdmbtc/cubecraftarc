@@ -481,11 +481,12 @@ export class GameWorld {
         const y = 64
 
         try {
-            // Place corner markers (glowstone defaultState)
-            const mcData = require('prismarine-registry')(serv.version)
-            const glowstone = mcData.blocksByName.glowstone.defaultState
-            const stoneSlab = mcData.blocksByName.stone_slab.defaultState + 8 // top variant
-            const oakSign = mcData.blocksByName.oak_sign.defaultState
+        // Place corner markers (glowstone defaultState)
+        const mcData = serv.mcData
+        if (!mcData) { console.warn('mcData not available'); return }
+        const glowstone = mcData.blocksByName.glowstone?.defaultState || 0
+        const stoneSlab = (mcData.blocksByName.stone_slab?.defaultState || 0) + 8 // top variant
+        const oakSign = mcData.blocksByName.oak_sign?.defaultState || 0
 
             const corners = [
                 { x: baseX, z: baseZ },
@@ -580,7 +581,8 @@ export class GameWorld {
         if (!player?.world) return
 
         const Vec3 = require('vec3').Vec3
-        const mcData = require('prismarine-registry')(serv.version)
+        const mcData = serv.mcData
+        if (!mcData) { console.warn('mcData not available'); return }
         const world = player.world
 
         // Building templates using block names
@@ -600,7 +602,8 @@ export class GameWorld {
         const b = buildings[businessType] || buildings.shop
         const getBlock = (name: string) => {
             const block = mcData.blocksByName[name]
-            return block ? block.defaultState : 0
+            if (!block) { console.warn(`Block not found: ${name}`); return 0 }
+            return block.defaultState
         }
 
         const wallId = getBlock(b.wall)
