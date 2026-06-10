@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx tsx scripts/genShims.ts && npx tsx scripts/makeOptimizedMcData.mjs && npx tsx scripts/genLargeDataAliases.ts && npx rsbuild build",
+  "buildCommand": "echo 'Pre-built, no build needed'",
   "outputDirectory": "dist",
-  "installCommand": "pnpm install"
+  "installCommand": "echo 'No install needed'"
 }
