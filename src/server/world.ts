@@ -68,7 +68,8 @@ export class GameWorld {
                 'motd': this.config.worldName,
                 'pvp': this.config.enablePvP,
                 'view-distance': 6,
-                'world-generator': 'superflat'
+                'world-generator': 'superflat',
+                'version': '1.21.1'
             }) as any
 
             this.setupServerEvents()

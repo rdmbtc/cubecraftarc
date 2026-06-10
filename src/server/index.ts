@@ -8,10 +8,12 @@ import { WebSocketServer, WebSocket } from 'ws'
 import http from 'http'
 import { GameWorld } from './world'
 import { BUSINESS_TEMPLATES } from './economy'
+import { startWsProxy } from './wsProxy'
 
 const MC_PORT = parseInt(process.env.MC_PORT || '25565')
 const WS_PORT = parseInt(process.env.WS_PORT || '25566')
 const HTTP_PORT = parseInt(process.env.HTTP_PORT || '25567')
+const WS_PROXY_PORT = parseInt(process.env.WS_PROXY_PORT || '25568')
 
 async function main() {
     console.log('========================================')
@@ -30,6 +32,9 @@ async function main() {
 
     // Start the game world (flying-squid Minecraft server)
     await world.start()
+
+    // Start WebSocket→MC protocol proxy for browser clients
+    startWsProxy(WS_PROXY_PORT)
 
     // Create HTTP API server
     const app = express()
