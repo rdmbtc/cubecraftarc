@@ -56,7 +56,7 @@ async function main() {
     })
 
     // Leaderboard endpoint
-    app.get('/api/leaderboard', (_req, res) => {
+    app.get('/api/leaderboard', (req, res) => {
         const limit = parseInt(req.query.limit as string) || 10
         res.json(world.economy.getLeaderboard(limit))
     })
